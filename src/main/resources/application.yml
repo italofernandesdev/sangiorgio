@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sangiorgio
+    username: root
+    password: root6Beer
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+aws:
+  sqs:
+    partial-payment-queue: https://sqs.us-east-1.amazonaws.com/920372990680/partial-payment-queue
+    full-payment-queue: https://sqs.us-east-1.amazonaws.com/920372990680/full-payment-queue
+    excess-payment-queue: https://sqs.us-east-1.amazonaws.com/920372990680/excess-payment-queue
