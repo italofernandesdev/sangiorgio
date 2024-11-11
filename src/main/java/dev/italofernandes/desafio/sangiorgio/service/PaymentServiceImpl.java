@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,17 +35,16 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentRequestDTO processPayment(PaymentRequestDTO paymentRequests) {
-        validateSeller(paymentRequests.getSellerCode());
+    public PaymentRequestDTO processPayment(PaymentRequestDTO paymentRequest) {
+        validateSeller(paymentRequest.getSellerCode());
+        validateBilling(paymentRequest);
 
-        paymentRequests.getPayments().forEach(payment -> {
-            validateBilling(payment.getBillingCode());
+        paymentRequest.getPayments().forEach(payment -> {
             payment.setStatus(getPaymentStatus(payment));
-
             awsSqsService.sendToAwsSqsQueue(payment);
         });
 
-        return paymentRequests;
+        return paymentRequest;
     }
 
     private void validateSeller(String sellerCode) {
@@ -52,9 +53,16 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void validateBilling(String billingCode) {
-        if(billingRepository.findByCode(billingCode).isEmpty()) {
-            throw new PaymentServiceException("Billing not found with code " + billingCode);
+    private void validateBilling(PaymentRequestDTO paymentRequest) {
+        List<String> billingCodesNotFound = new ArrayList<>();
+        paymentRequest.getPayments().forEach(payment -> {
+            if(billingRepository.findByCode(payment.getBillingCode()).isEmpty()) {
+                billingCodesNotFound.add(payment.getBillingCode());
+            }
+        });
+
+        if(!billingCodesNotFound.isEmpty()) {
+            throw new PaymentServiceException("Billings not found with codes " + billingCodesNotFound.toString());
         }
     }
 
