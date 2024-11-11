@@ -3,6 +3,7 @@ package dev.italofernandes.desafio.sangiorgio.service;
 import dev.italofernandes.desafio.sangiorgio.domain.Billing;
 import dev.italofernandes.desafio.sangiorgio.dto.PaymentDTO;
 import dev.italofernandes.desafio.sangiorgio.dto.PaymentRequestDTO;
+import dev.italofernandes.desafio.sangiorgio.dto.PaymentResponseDTO;
 import dev.italofernandes.desafio.sangiorgio.enumeration.PaymentStatusEnum;
 import dev.italofernandes.desafio.sangiorgio.exception.PaymentServiceException;
 import dev.italofernandes.desafio.sangiorgio.repository.BillingRepository;
@@ -35,16 +36,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentRequestDTO processPayment(PaymentRequestDTO paymentRequest) {
+    public PaymentResponseDTO processPayment(PaymentRequestDTO paymentRequest) {
         validateSeller(paymentRequest.getSellerCode());
         validateBilling(paymentRequest);
 
         paymentRequest.getPayments().forEach(payment -> {
             payment.setStatus(getPaymentStatus(payment));
+
             awsSqsService.sendToAwsSqsQueue(payment);
         });
 
-        return paymentRequest;
+        return new PaymentResponseDTO(paymentRequest);
     }
 
     private void validateSeller(String sellerCode) {

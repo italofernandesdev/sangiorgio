@@ -2,12 +2,13 @@ package dev.italofernandes.desafio.sangiorgio.service;
 
 import dev.italofernandes.desafio.sangiorgio.dto.PaymentDTO;
 import dev.italofernandes.desafio.sangiorgio.enumeration.PaymentStatusEnum;
-import dev.italofernandes.desafio.sangiorgio.exception.AwsSqsException;
+import dev.italofernandes.desafio.sangiorgio.exception.AwsSqsServiceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import com.google.gson.Gson;
+import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 import software.amazon.awssdk.services.sqs.model.SqsException;
 
 @Service("awsSqsService")
@@ -28,16 +29,16 @@ public class AwsSqsServiceImpl implements AwsSqsService {
     }
 
     @Override
-    public void sendToAwsSqsQueue(PaymentDTO payment) throws AwsSqsException {
+    public SendMessageResponse sendToAwsSqsQueue(PaymentDTO payment) throws AwsSqsServiceException {
         String sqsQueueUrl = getQueueByPaymentStatus(payment.getStatus());
 
         try {
-            sqsClient.sendMessage(SendMessageRequest.builder()
+            return sqsClient.sendMessage(SendMessageRequest.builder()
                     .queueUrl(sqsQueueUrl)
                     .messageBody(new Gson().toJson(payment))
                     .build());
         } catch (SqsException e) {
-            throw new AwsSqsException("An error occurred trying to send the message to AWS SQS queue: " + sqsQueueUrl,  e.getCause());
+            throw new AwsSqsServiceException("An error occurred trying to send the message to AWS SQS queue: " + sqsQueueUrl,  e.getCause());
         }
     }
 
@@ -46,7 +47,7 @@ public class AwsSqsServiceImpl implements AwsSqsService {
             case PARTIAL -> partialPaymentQueue;
             case EXCESS -> excessPaymentQueue;
             case FULL -> fullPaymentQueue;
-            default -> throw new AwsSqsException(
+            default -> throw new AwsSqsServiceException(
                     "Payment Status not found: " + paymentStatusEnum.name()
             );
         };
