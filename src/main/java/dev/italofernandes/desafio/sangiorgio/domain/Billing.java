@@ -15,9 +15,8 @@ public class Billing {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @ManyToOne
-  @JoinColumn(name = "seller_id")
-  private Seller seller;
+  @Column(name = "code", nullable = false)
+  private String code;
 
   @Column(name = "original_amount", nullable = false)
   private BigDecimal originalAmount;

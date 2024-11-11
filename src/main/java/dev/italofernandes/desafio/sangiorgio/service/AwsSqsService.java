@@ -1,7 +1,7 @@
 package dev.italofernandes.desafio.sangiorgio.service;
 
-import dev.italofernandes.desafio.sangiorgio.dto.PaymentRequestDTO;
+import dev.italofernandes.desafio.sangiorgio.dto.PaymentDTO;
 
 public interface AwsSqsService {
-    void sendToAwsSqsQueue(PaymentRequestDTO paymentRequestDTO);
+    void sendToAwsSqsQueue(PaymentDTO payment);
 }

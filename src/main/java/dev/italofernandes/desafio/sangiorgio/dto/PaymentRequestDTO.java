@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class PaymentRequestDTO {
-    private long sellerId;
-    private List<PaymentDTO> paymentDTOS;
+    private String sellerCode;
+    private List<PaymentDTO> payments;
 }

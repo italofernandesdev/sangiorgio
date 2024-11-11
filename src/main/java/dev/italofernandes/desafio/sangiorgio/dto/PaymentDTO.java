@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Data
 public class PaymentDTO {
-    private long billingId;
+    private String billingCode;
     private BigDecimal paidAmount;
-    private PaymentStatusEnum paymentStatus;
+    private PaymentStatusEnum status;
 }

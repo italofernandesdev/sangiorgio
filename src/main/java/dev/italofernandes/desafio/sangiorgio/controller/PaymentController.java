@@ -1,11 +1,8 @@
 package dev.italofernandes.desafio.sangiorgio.controller;
 
-import dev.italofernandes.desafio.sangiorgio.domain.Payment;
 import dev.italofernandes.desafio.sangiorgio.dto.PaymentRequestDTO;
-import dev.italofernandes.desafio.sangiorgio.response.ProccessPaymentResponse;
 import dev.italofernandes.desafio.sangiorgio.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

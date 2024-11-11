@@ -1,7 +1,7 @@
 package dev.italofernandes.desafio.sangiorgio.service;
 
+import dev.italofernandes.desafio.sangiorgio.dto.PaymentDTO;
 import dev.italofernandes.desafio.sangiorgio.enumeration.PaymentStatusEnum;
-import dev.italofernandes.desafio.sangiorgio.dto.PaymentRequestDTO;
 import dev.italofernandes.desafio.sangiorgio.exception.AwsSqsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,17 +28,17 @@ public class AwsSqsServiceImpl implements AwsSqsService {
     }
 
     @Override
-    public void sendToAwsSqsQueue(PaymentRequestDTO paymentRequestDTO) {
-        paymentRequestDTO.getPaymentDTOS().forEach(paymentDTO -> {
-            try {
-                sqsClient.sendMessage(SendMessageRequest.builder()
-                        .queueUrl(getQueueByPaymentStatus(paymentDTO.getPaymentStatus()))
-                        .messageBody(new Gson().toJson(paymentRequestDTO))
-                        .build());
-            } catch (SqsException e) {
-                throw new AwsSqsException("An error occurred trying to send the message to AWS SQS queue: ", e.getCause());
-            }
-        });
+    public void sendToAwsSqsQueue(PaymentDTO payment) throws AwsSqsException {
+        String sqsQueueUrl = getQueueByPaymentStatus(payment.getStatus());
+
+        try {
+            sqsClient.sendMessage(SendMessageRequest.builder()
+                    .queueUrl(sqsQueueUrl)
+                    .messageBody(new Gson().toJson(payment))
+                    .build());
+        } catch (SqsException e) {
+            throw new AwsSqsException("An error occurred trying to send the message to AWS SQS queue: " + sqsQueueUrl,  e.getCause());
+        }
     }
 
     private String getQueueByPaymentStatus(PaymentStatusEnum paymentStatusEnum) {
